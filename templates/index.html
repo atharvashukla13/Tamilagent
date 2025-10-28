@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tamil Agricultural Page Prediction API</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.2em;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .section {
+        margin-bottom: 40px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 5px solid #3498db;
+      }
+
+      .section h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 1.8em;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      input[type="text"],
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
+
+      input[type="text"]:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #3498db;
+      }
+
+      button {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+      }
+
+      .results {
+        margin-top: 20px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e1e8ed;
+      }
+
+      .prediction-item {
+        padding: 15px;
+        margin: 10px 0;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #3498db;
+      }
+
+      .prediction-item.top {
+        border-left-color: #e74c3c;
+        background: #fff5f5;
+      }
+
+      .score {
+        font-weight: bold;
+        color: #e74c3c;
+      }
+
+      .page-name {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
+
+      .description {
+        color: #7f8c8d;
+        font-style: italic;
+      }
+
+      .visualization {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .visualization img {
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #7f8c8d;
+      }
+
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+      }
+
+      .api-info {
+        background: #e8f4fd;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .api-info h3 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .endpoint {
+        background: white;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+        font-family: monospace;
+        border-left: 3px solid #3498db;
+      }
+
+      .sample-queries {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .sample-query {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #e1e8ed;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .sample-query:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .tamil-text {
+        font-size: 1.1em;
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
+
+      .query-translation {
+        font-size: 0.9em;
+        color: #7f8c8d;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🌾 Tamil Agricultural Page Prediction API</h1>
+        <p>
+          AI-powered Tamil language page prediction for agricultural
+          applications
+        </p>
+      </div>
+
+      <div class="content">
+        <!-- API Information -->
+        <div class="api-info">
+          <h3>📡 Available API Endpoints</h3>
+          <div class="endpoint">POST /predict - Main prediction endpoint</div>
+          <div class="endpoint">
+            GET /predict?query=text - GET prediction endpoint
+          </div>
+          <div class="endpoint">GET /pages - Get all available pages</div>
+          <div class="endpoint">GET /stats - Get knowledge base statistics</div>
+          <div class="endpoint">
+            GET /visualize/keywords - Keyword distribution chart
+          </div>
+          <div class="endpoint">
+            POST /visualize/similarity - Similarity heatmap
+          </div>
+          <div class="endpoint">GET /test - Test with sample queries</div>
+        </div>
+
+        <!-- Prediction Section -->
+        <div class="section">
+          <h2>🔮 Page Prediction</h2>
+          <div class="form-group">
+            <label for="query">Enter Tamil Query:</label>
+            <input
+              type="text"
+              id="query"
+              placeholder="என்டிவிஐ மூலம் பயிர்களின் ஆரோக்கியத்தை மதிப்பிடலாம்"
+            />
+          </div>
+          <button onclick="predictPage()">Predict Page</button>
+          <button onclick="getVisualization()">
+            Get Similarity Visualization
+          </button>
+
+          <div id="results" class="results" style="display: none">
+            <h3>Prediction Results:</h3>
+            <div id="predictionResults"></div>
+          </div>
+
+          <div id="visualization" class="visualization" style="display: none">
+            <h3>Similarity Visualization:</h3>
+            <div id="visualizationContent"></div>
+          </div>
+        </div>
+
+        <!-- Sample Queries -->
+        <div class="section">
+          <h2>📝 Sample Tamil Queries</h2>
+          <div class="sample-queries">
+            <div
+              class="sample-query"
+              onclick="setQuery('என்டிவிஐ மூலம் பயிர்களின் ஆரோக்கியத்தை மதிப்பிடலாம்')"
+            >
+              <div class="tamil-text">
+                என்டிவிஐ மூலம் பயிர்களின் ஆரோக்கியத்தை மதிப்பிடலாம்
+              </div>
+              <div class="query-translation">
+                Assess crop health through NDVI
+              </div>
+            </div>
+            <div
+              class="sample-query"
+              onclick="setQuery('விளைச்சல் முன்னறிவிப்பு')"
+            >
+              <div class="tamil-text">விளைச்சல் முன்னறிவிப்பு</div>
+              <div class="query-translation">Yield prediction</div>
+            </div>
+            <div class="sample-query" onclick="setQuery('பயிர்நோய் கண்டறிதல்')">
+              <div class="tamil-text">பயிர்நோய் கண்டறிதல்</div>
+              <div class="query-translation">Crop disease detection</div>
+            </div>
+            <div
+              class="sample-query"
+              onclick="setQuery('நீர்ப்பாசனத் திட்டம்')"
+            >
+              <div class="tamil-text">நீர்ப்பாசனத் திட்டம்</div>
+              <div class="query-translation">Irrigation plan</div>
+            </div>
+            <div class="sample-query" onclick="setQuery('பயிர் பரிந்துரை')">
+              <div class="tamil-text">பயிர் பரிந்துரை</div>
+              <div class="query-translation">Crop recommendation</div>
+            </div>
+            <div
+              class="sample-query"
+              onclick="setQuery('உரம் மற்றும் பூச்சிக்கொல்லி அறிவகம்')"
+            >
+              <div class="tamil-text">உரம் மற்றும் பூச்சிக்கொல்லி அறிவகம்</div>
+              <div class="query-translation">
+                Fertilizer and pesticide encyclopedia
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="section">
+          <h2>📊 Knowledge Base Statistics</h2>
+          <button onclick="getStats()">Load Statistics</button>
+          <div id="statsResults" class="results" style="display: none">
+            <div id="statsContent"></div>
+          </div>
+        </div>
+
+        <!-- Keyword Visualization -->
+        <div class="section">
+          <h2>📈 Keyword Distribution</h2>
+          <button onclick="getKeywordVisualization()">
+            Show Keyword Distribution
+          </button>
+          <div id="keywordViz" class="visualization" style="display: none">
+            <div id="keywordVizContent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function setQuery(text) {
+        document.getElementById("query").value = text;
+      }
+
+      async function predictPage() {
+        const query = document.getElementById("query").value.trim();
+        if (!query) {
+          alert("Please enter a Tamil query");
+          return;
+        }
+
+        const resultsDiv = document.getElementById("results");
+        const predictionResults = document.getElementById("predictionResults");
+
+        resultsDiv.style.display = "block";
+        predictionResults.innerHTML =
+          '<div class="loading">Loading predictions...</div>';
+
+        try {
+          const response = await fetch("/predict", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query: query }),
+          });
+
+          const data = await response.json();
+
+          if (data.error) {
+            predictionResults.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+            return;
+          }
+
+          let html = `<h4>Query: "${data.query}"</h4>`;
+
+          if (data.predictions && data.predictions.length > 0) {
+            data.predictions.forEach((pred, index) => {
+              const isTop = index === 0;
+              html += `
+                            <div class="prediction-item ${isTop ? "top" : ""}">
+                                <div class="page-name">${pred.page_name
+                                  .replace("_", " ")
+                                  .toUpperCase()}</div>
+                                <div class="description">${
+                                  pred.description
+                                }</div>
+                                <div>Keyword: "${pred.keyword}"</div>
+                                <div>Similarity Score: <span class="score">${pred.similarity_score.toFixed(
+                                  4
+                                )}</span></div>
+                            </div>
+                        `;
+            });
+          } else {
+            html += '<div class="error">No predictions found</div>';
+          }
+
+          predictionResults.innerHTML = html;
+        } catch (error) {
+          predictionResults.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        }
+      }
+
+      async function getVisualization() {
+        const query = document.getElementById("query").value.trim();
+        if (!query) {
+          alert("Please enter a Tamil query first");
+          return;
+        }
+
+        const vizDiv = document.getElementById("visualization");
+        const vizContent = document.getElementById("visualizationContent");
+
+        vizDiv.style.display = "block";
+        vizContent.innerHTML =
+          '<div class="loading">Generating visualization...</div>';
+
+        try {
+          const response = await fetch("/visualize/similarity", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query: query }),
+          });
+
+          const data = await response.json();
+
+          if (data.error) {
+            vizContent.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+            return;
+          }
+
+          vizContent.innerHTML = `<img src="${data.image}" alt="Similarity Visualization">`;
+        } catch (error) {
+          vizContent.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        }
+      }
+
+      async function getStats() {
+        const statsDiv = document.getElementById("statsResults");
+        const statsContent = document.getElementById("statsContent");
+
+        statsDiv.style.display = "block";
+        statsContent.innerHTML =
+          '<div class="loading">Loading statistics...</div>';
+
+        try {
+          const response = await fetch("/stats");
+          const data = await response.json();
+
+          let html = `
+                    <h4>Knowledge Base Statistics</h4>
+                    <div class="prediction-item">
+                        <div class="page-name">Total Pages: ${
+                          data.total_pages
+                        }</div>
+                        <div class="description">Total Keywords: ${
+                          data.total_keywords
+                        }</div>
+                        <div>Average Keywords per Page: ${data.avg_keywords_per_page.toFixed(
+                          2
+                        )}</div>
+                        <div>Keyword Distribution:</div>
+                        <div style="margin-left: 20px;">
+                            <div>Min: ${data.keyword_distribution.min}</div>
+                            <div>Max: ${data.keyword_distribution.max}</div>
+                            <div>Median: ${
+                              data.keyword_distribution.median
+                            }</div>
+                        </div>
+                    </div>
+                `;
+
+          statsContent.innerHTML = html;
+        } catch (error) {
+          statsContent.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        }
+      }
+
+      async function getKeywordVisualization() {
+        const vizDiv = document.getElementById("keywordViz");
+        const vizContent = document.getElementById("keywordVizContent");
+
+        vizDiv.style.display = "block";
+        vizContent.innerHTML =
+          '<div class="loading">Generating keyword distribution chart...</div>';
+
+        try {
+          const response = await fetch("/visualize/keywords");
+          const data = await response.json();
+
+          if (data.error) {
+            vizContent.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+            return;
+          }
+
+          vizContent.innerHTML = `<img src="${data.image}" alt="Keyword Distribution">`;
+        } catch (error) {
+          vizContent.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        }
+      }
+
+      // Load initial statistics on page load
+      window.onload = function () {
+        getStats();
+      };
+    </script>
+  </body>
+</html>
